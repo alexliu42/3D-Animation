@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+        <title>Babylon.js sample code</title>
+
+        <!-- Babylon.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/ammo.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+    </head>
+<body>
+    <canvas id="renderCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+
+        var engine = null;
+        var scene = null;
+        var sceneToRender = null;
+        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+        // You have to create a function called createScene. This function must return a BABYLON.Scene object
+// You can reference the following variables: engine, canvas
+// You must at least define a camera
+
+var createScene = function() {
+    var scene = new BABYLON.Scene(engine);
+
+    var camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 12, BABYLON.Vector3.Zero(), scene);
+    //var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
+
+    // This targets the camera to scene origin
+    camera.setTarget(BABYLON.Vector3.Zero());
+
+    // This attaches the camera to the canvas
+    camera.attachControl(canvas, true);
+
+    let light = new BABYLON.DirectionalLight('light', new BABYLON.Vector3(0,-1,0));
+    let ambient = new BABYLON.HemisphericLight("ambient", new BABYLON.Vector3(0,-1,0))
+
+    light.diffuse = new BABYLON.Color3(1,1,1);
+    light.direction = new BABYLON.Vector3(.5,-1,.5);
+
+    ambient.diffuse = new BABYLON.Color3(.2,.3,.7);
+    ambient.specular = new BABYLON.Color3(1,0,1);
+
+    let body = new BABYLON.MeshBuilder.CreateBox("body", {width:2,height:3,depth:1.5});
+
+    body.material = new BABYLON.StandardMaterial('body')    
+    body.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/LhlxYMfnTF0");
+    body.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/LhlxYMfnTF0");
+    body.position.y = -.5;
+
+    let head = new BABYLON.MeshBuilder.CreateSphere("head",{diameter: 2});
+    
+    head.position.x = 0
+    head.position.y = 2
+    head.material = new BABYLON.StandardMaterial('head')
+    head.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    head.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    
+    let LEar = new BABYLON.MeshBuilder.CreateSphere("LEar",{diameter: 1});
+
+    LEar.position.x = -1
+    LEar.position.y = 3
+    LEar.material = new BABYLON.StandardMaterial('LEar')
+    LEar.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    LEar.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    
+    let REar = new BABYLON.MeshBuilder.CreateSphere("REar",{diameter: 1});
+
+    REar.position.x = 1
+    REar.position.y = 3
+    REar.material = new BABYLON.StandardMaterial('REar')
+    REar.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    REar.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+   
+    let LHand = new BABYLON.MeshBuilder.CreateCylinder("LHand", {height:1.8, diameter:1, tessellation:5});
+    
+    LHand.position.x = 1.8
+    LHand.rotation.z = Math.PI/2;
+    LHand.material = new BABYLON.StandardMaterial('LHand')  
+    LHand.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    LHand.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    
+    let RHand = new BABYLON.MeshBuilder.CreateCylinder("RHand", {height:1.8, diameter:1, tessellation:5});
+    
+    RHand.position.x = -1.8
+    RHand.rotation.z = Math.PI/2;
+    RHand.material = new BABYLON.StandardMaterial('RHand')  
+    RHand.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    RHand.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+
+    let LFoot = new BABYLON.MeshBuilder.CreateCylinder("LFoot", {height:2, diameter:1, tessellation:5});
+
+    LFoot.position.y = -3
+    LFoot.position.x = 0.5
+    LFoot.material = new BABYLON.StandardMaterial('LFoot')  
+    LFoot.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    LFoot.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+
+    
+    let RFoot = new BABYLON.MeshBuilder.CreateCylinder("RFoot", {height:2, diameter:1, tessellation:5});
+    
+    RFoot.position.y = -3
+    RFoot.position.x = -0.5
+    RFoot.material = new BABYLON.StandardMaterial('RFoot')  
+    RFoot.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    RFoot.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+
+    let torus = new BABYLON.MeshBuilder.CreateTorus("torus", {diameter:4, thickness:2, tesselation:16});
+    
+    torus.position.y = -5.5
+    torus.material = new BABYLON.StandardMaterial('torus')  
+    torus.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/kSY5T6js2KE");
+    torus.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/kSY5T6js2KE");
+  
+    let sphere = new BABYLON.MeshBuilder.CreateSphere("sphere",{diameter: 3});
+    
+    sphere.material = new BABYLON.StandardMaterial('sphere')  
+    sphere.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/KZa4fREZoKk");
+    sphere.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/KZa4fREZoKk");
+    sphere.position.y = -5.5
+
+    const obj = BABYLON.Mesh.MergeMeshes([head,LEar,REar,body,LFoot,LHand,RHand,RFoot,sphere,torus], true, false, null, false, true);
+    
+    let body2 = new BABYLON.MeshBuilder.CreateBox("body", {width:2,height:3,depth:1.5});
+
+    body2.rotation.z = Math.PI/2;    
+    body2.material = new BABYLON.StandardMaterial('body')    
+    body2.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/LhlxYMfnTF0");
+    body2.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/LhlxYMfnTF0");
+    body2.position.y = -9;
+    body2.position.x = -5;
+    
+
+    let head2 = new BABYLON.MeshBuilder.CreateSphere("head",{diameter: 2});
+    
+    head2.position.x = -7.5
+    head2.position.y = -9
+    head2.material = new BABYLON.StandardMaterial('head')
+    head2.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    head2.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    
+    let LEar2 = new BABYLON.MeshBuilder.CreateSphere("LEar",{diameter: 1});
+
+    LEar2.position.x = -8
+    LEar2.position.y = -9
+    LEar2.position.z = 1
+    LEar2.material = new BABYLON.StandardMaterial('LEar')
+    LEar2.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    LEar2.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    
+    let REar2 = new BABYLON.MeshBuilder.CreateSphere("REar",{diameter: 1});
+
+    REar2.position.z = -1
+    REar2.position.x = -8
+    REar2.position.y = -9
+    REar2.material = new BABYLON.StandardMaterial('REar')
+    REar2.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    REar2.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+   
+    let LHand2 = new BABYLON.MeshBuilder.CreateCylinder("LHand", {height:1.8, diameter:1, tessellation:5});
+    
+    LHand2.position.x = 1.8
+    LHand2.rotation.z = Math.PI/2;
+    LHand2.rotation.y = Math.PI/2;
+    LHand2.position.z = 1
+    LHand2.position.x = -6
+    LHand2.position.y = -9
+    LHand2.material = new BABYLON.StandardMaterial('LHand')  
+    LHand2.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    LHand2.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    
+    let RHand2 = new BABYLON.MeshBuilder.CreateCylinder("RHand", {height:1.8, diameter:1, tessellation:5});
+    
+    RHand2.position.x = -1.8
+    RHand2.rotation.z = Math.PI/2;
+    RHand2.rotation.y = Math.PI/2;
+    RHand2.position.z = -1
+    RHand2.position.x = -6
+    RHand2.position.y = -9
+    RHand2.material = new BABYLON.StandardMaterial('RHand')  
+    RHand2.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    RHand2.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+
+    let LFoot2 = new BABYLON.MeshBuilder.CreateCylinder("LFoot", {height:2, diameter:1, tessellation:5});
+
+    LFoot2.rotation.z = Math.PI/2;
+    LFoot2.position.z = 0.5
+    LFoot2.position.x = -2.5
+    LFoot2.position.y = -9
+    LFoot2.material = new BABYLON.StandardMaterial('LFoot')  
+    LFoot2.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    LFoot2.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+
+    
+    let RFoot2 = new BABYLON.MeshBuilder.CreateCylinder("RFoot", {height:2, diameter:1, tessellation:5});
+    
+    RFoot2.rotation.z = Math.PI/2;
+    RFoot2.position.z = -0.5
+    RFoot2.position.x = -2.5
+    RFoot2.position.y = -9
+    RFoot2.material = new BABYLON.StandardMaterial('RFoot')  
+    RFoot2.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+    RFoot2.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/jvn8gPiGEac");
+
+    const obj2 = BABYLON.Mesh.MergeMeshes([head2,LEar2,REar2,body2,LFoot2,LHand2,RHand2,RFoot2]);
+
+    let ground = new BABYLON.MeshBuilder.CreateGround("ground", {width:30,height:30});
+    
+    ground.position.y = -10;
+    ground.material = new BABYLON.StandardMaterial('ground')  
+    ground.material.diffuseTexture = new BABYLON.Texture("https://source.unsplash.com/7RuhOrZO-1g");
+    ground.material.specularTexture = new BABYLON.Texture("https://source.unsplash.com/7RuhOrZO-1g");
+
+    let hdrTexture = new BABYLON.CubeTexture("https://source.unsplash.com/aX4zU9Rp7jo/", scene);
+    scene.createDefaultSkybox(hdrTexture, true, 10000);
+
+
+    let frameRate = 30;
+    let animationLength = 12;
+
+    let objxAnimation = new BABYLON.Animation("obj x animation", "position.x", frameRate, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_LOOP);
+
+    let objxKeyFrames = [
+        {
+            frame:0,
+            value:15
+        },
+        {
+            frame: animationLength * frameRate,
+            value:0
+        }
+    ];
+
+    objxAnimation.setKeys(objxKeyFrames);
+
+    let objyAnimation = new BABYLON.Animation("obj y animation", "position.y", frameRate, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_LOOP);
+    
+    let objyKeyFrames = [
+        {
+            frame:0,
+            value:15
+        },
+        {
+            frame: (animationLength/2) * frameRate,
+            value:5
+        },
+        {
+            frame: (animationLength*3/4) * frameRate,
+            value:10
+        },
+        {
+            frame: animationLength * frameRate,
+            value:0
+        }
+    ];
+
+    objyAnimation.setKeys(objyKeyFrames);
+    
+    scene.beginDirectAnimation(obj,[objxAnimation,objyAnimation],0,animationLength*frameRate, false);
+
+    let objPosX = 0
+    let objPosY = 0
+    
+    scene.actionManager = new BABYLON.ActionManager(scene);
+    
+    scene.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+
+        BABYLON.ActionManager.OnKeyDownTrigger,
+
+        function(keyInfo){
+            
+            let keyDirection = keyInfo.sourceEvent.key;
+            if(keyDirection == "w"){
+                objPosY = 0.05;
+                objPosX = 0;
+            }
+            else if (keyDirection=="s"){
+                objPosY = -0.05;
+                objPosX = 0;
+            }
+            else if(keyDirection=="a"){
+                objPosX = -0.05;
+                objPosY = 0;
+            }
+            else if(keyDirection=="d"){
+                objPosX = 0.05;
+                objPosY = 0;
+            }
+        }
+        )
+    )
+    scene.registerBeforeRender(function(){
+        
+        obj.position.x += objPosX;
+        obj.position.y += objPosY;
+
+        objPosX *=.99;
+        objPosY *=.99;
+        
+        if (obj.intersectsMesh(ground, true)){
+            objPosY = -objPosY;
+            obj.position.y = obj.position.y + 2*objPosY;
+        }
+        if (obj.intersectsMesh(obj2, true)){
+            objPosY = -objPosY;
+            obj.position.y = obj.position.y + 2*objPosY;
+        }
+        if (obj.intersectsMesh(obj2, true)){
+            objPosX = -objPosX;
+            obj.position.x = obj.position.x + 2*objPosX;
+        }
+    })
+
+    return scene;
+};
+                window.initFunction = async function() {
+                    
+                    
+                    var asyncEngineCreation = async function() {
+                        try {
+                        return createDefaultEngine();
+                        } catch(e) {
+                        console.log("the available createEngine function failed. Creating the default engine instead");
+                        return createDefaultEngine();
+                        }
+                    }
+
+                    window.engine = await asyncEngineCreation();
+        if (!engine) throw 'engine should not be null.';
+        window.scene = createScene();};
+        initFunction().then(() => {sceneToRender = scene        
+            engine.runRenderLoop(function () {
+                if (sceneToRender && sceneToRender.activeCamera) {
+                    sceneToRender.render();
+                }
+            });
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>
